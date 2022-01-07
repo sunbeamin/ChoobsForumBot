@@ -19,25 +19,30 @@ def getLatestForumPost():
         req = urllib.request.Request(url=forumURL, headers={'User-Agent': 'Mozilla/5.0'})
         html = urllib.request.urlopen(req).read()
     except urllib.error.HTTPError as e:
-        print(e.__dict__)
+        print("Caught HTTP Error: ", e.__dict__)
+        return forumData
     except urllib.error.URLError as e:
-        print(e.__dict__)
+        print("Caught URL Error: ", e.__dict__)
+        return forumData
 
     soup = BeautifulSoup(html, features="html.parser")
 
     # Retrieve the latest page on the forum from the bottom pagination boxes
     maxPaginationNumber = soup.find('input',class_="paginationWrap__number text")["max"]
 
-    # Retrieve the HTML of the last page on the forum
+    # Concatenate the last page number to the original URL
     forumLastPageURL = forumURL + maxPaginationNumber
     
+    #Get the HTML of the last page on the forum
     try:
         req = urllib.request.Request(url=forumLastPageURL, headers={'User-Agent': 'Mozilla/5.0'})
         html = urllib.request.urlopen(req).read()
     except urllib.error.HTTPError as e:
-        print(e.__dict__)
+        print("Caught HTTP Error: ", e.__dict__)
+        return forumData
     except urllib.error.URLError as e:
-        print(e.__dict__)
+        print("Caught URL Error: ", e.__dict__)
+        return forumData
 
     soup = BeautifulSoup(html, features="html.parser")
 
@@ -48,7 +53,6 @@ def getLatestForumPost():
 
     #Check if the timestamp matches that of the previously fetched latest message
     #If these do not match, it means a new message has been posted. Save the new timestamp
-  
     if(latestReplyTimestamp != latestReplySaved):
 
         with open(r"PostTimestamp.txt", "w+") as fp:
@@ -62,5 +66,4 @@ def getLatestForumPost():
         forumData.timestamp = latestReplyTimestamp
 
     return forumData
-
 

@@ -5,9 +5,9 @@
 * Install python venv `sudo apt-get install python3.9-venv` ****Only needed if on Debian/Ubuntu systems
 * Create a Python Virtual Enviroment `python3 -m venv /path/to/wherever`
 * cd to the `bin/` directory in the python virtual enviroment 
-* Add the following line at the bottom of the `activate` file (the one without extensions)
+* Add the following lines at the bottom of the `activate` file (the one without extensions)
 
-	`export DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE`
+	`export DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE` <br />
     `export DISCORD_CHANNEL=DESIRED_DISCORD_CHANNEL_ID_HERE`
 
 * Replace `YOUR_DISCORD_BOT_TOKEN_HERE` with your bot token, no need for {} or [] etc
@@ -26,3 +26,11 @@
 The bot will check the forum for new posts every 60 seconds by default, if a new message is posted, it will be posted to the Discord Channel.
 It should be resilient to internet outages and file errors etc. 
 Feel free to DM me for any concerns/questions
+
+## Limitations
+* The bot always retrieves the latest message on the forum every 60 seconds and saves the timestamp of this message. <br />
+If a message is found which has a different timestamp, this new timestamp is saved and the new message is sent. <br />
+It could however occur, that multiple messages are posted within these 60 seconds. In that case, only the latest is retrieved.
+
+* Formatting of the forum post body is lost. Multiline messages, bold, italics etc. are all not parsed at the moment. <br />
+The bot will always send the forum post as plaintext.

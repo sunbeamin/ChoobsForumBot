@@ -5,9 +5,9 @@
 * Install python venv `sudo apt-get install python3.9-venv` ****Only needed if on Debian/Ubuntu systems
 * Create a Python Virtual Enviroment `python3 -m venv /path/to/wherever`
 * cd to the `bin/` directory in the python virtual enviroment 
-* Add the following line at the bottom of the `activate` file (the one without extensions)
+* Add the following lines at the bottom of the `activate` file (the one without extensions)
 
-	`export DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE`
+	`export DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE` <br />
     `export DISCORD_CHANNEL=DESIRED_DISCORD_CHANNEL_ID_HERE`
 
 * Replace `YOUR_DISCORD_BOT_TOKEN_HERE` with your bot token, no need for {} or [] etc

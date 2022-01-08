@@ -2,14 +2,13 @@ import discord
 from discord.ext import commands
 import os
 import asyncio
-from dotenv import load_dotenv
 
 import forumScraper
 
-load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+CHANNEL = os.getenv('DISCORD_CHANNEL')
+
 client = discord.Client()
-initComplete = False
 
 @client.event
 async def on_ready():
@@ -26,7 +25,7 @@ async def pollForum():
         if(results.forumPost != None):
             print("Choobs Forum Bot is sending a message!")
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
-            channel = client.get_channel(929118558963761153)
+            channel = client.get_channel(int(CHANNEL))
             
             #Embed the data into a nice format
             embed=discord.Embed(

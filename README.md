@@ -32,5 +32,5 @@ Feel free to DM me for any concerns/questions
 If a message is found which has a different timestamp, this new timestamp is saved and the new message is sent. <br />
 It could however occur, that multiple messages are posted within these 60 seconds. In that case, only the latest is retrieved.
 
-* Formatting of the forum post body is lost. Multiline messages, bold, italics etc. are all not parsed at the moment. <br />
+* Formatting of the forum post body is lost. Bold, italics etc. are all not parsed at the moment. <br />
 The bot will always send the forum post as plaintext.

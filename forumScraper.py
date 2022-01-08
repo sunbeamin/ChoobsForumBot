@@ -61,9 +61,13 @@ def getLatestForumPost():
 
         #Set our object variables, these stay as None otherwise
         forumData.forumURL = forumLastPageURL
-        forumData.forumPost = soup.findAll('span', class_="forum-post__body")[-1].get_text()
-        forumData.username = soup.findAll('a', class_="post-avatar__name-link")[-1].get_text()
         forumData.timestamp = latestReplyTimestamp
+        forumData.username = soup.findAll('a', class_="post-avatar__name-link")[-1].get_text()
 
+        #Init the forumPost var as string so we can append our post body to it
+        forumData.forumPost = ""
+        for string in soup.findAll('span', class_="forum-post__body")[-1].strings:
+            forumData.forumPost = f"{forumData.forumPost}\n {string}"
+            
     return forumData
 

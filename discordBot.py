@@ -2,8 +2,11 @@ import discord
 from discord.ext import commands
 import os
 import asyncio
+from dotenv import load_dotenv
 
 import forumScraper
+
+load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')

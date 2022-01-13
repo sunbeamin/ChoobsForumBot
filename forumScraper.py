@@ -52,14 +52,14 @@ def getLatestForumPost():
 
     # Find the timestamp of the latest entry on the latest page 
     latestReplyTimestamp = soup.findAll('p', class_="forum-post__time-below")[-1].get_text()
-    with open(r"PostTimestamp.txt", "r") as fp:
+    with open(r"botscripts/ChoobsForumBot/PostTimestamp.txt", "r") as fp:
         latestReplySaved = fp.read()
 
     #Check if the timestamp matches that of the previously fetched latest message
     #If these do not match, it means a new message has been posted. Save the new timestamp
     if(latestReplyTimestamp != latestReplySaved):
 
-        with open(r"PostTimestamp.txt", "w+") as fp:
+        with open(r"botscripts/ChoobsForumBot/PostTimestamp.txt", "w+") as fp:
             fp.write(latestReplyTimestamp)
             fp.close()
 

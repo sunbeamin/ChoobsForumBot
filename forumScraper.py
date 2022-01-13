@@ -14,7 +14,9 @@ def getLatestForumPost():
     forumData = returnObject()
 
     # Get the HTML of the Iron Choobs forum page
-    forumURL = 'https://secure.runescape.com/m=forum/c=zaAuPnMkWRg/forums?320,321,155,66237297,goto,'
+    forumURL = 'https://secure.runescape.com/m=forum/forums?320,321,158,66243056,goto,'
+    baseForumURL = 'https://secure.runescape.com/m=forum/forums'
+    
     try:
         req = urllib.request.Request(url=forumURL, headers={'User-Agent': 'Mozilla/5.0'})
         html = urllib.request.urlopen(req).read()
@@ -28,10 +30,12 @@ def getLatestForumPost():
     soup = BeautifulSoup(html, features="html.parser")
 
     # Retrieve the latest page on the forum from the bottom pagination boxes
-    maxPaginationNumber = soup.find('input',class_="paginationWrap__number text")["max"]
+    pageNumbers = soup.find(class_="pageNumbers")
+    maxPaginationNumber = pageNumbers.findAll("a")[-1]
 
-    # Concatenate the last page number to the original URL
-    forumLastPageURL = forumURL + maxPaginationNumber
+
+    # Concatenate the href of the last page to the base URL
+    forumLastPageURL = baseForumURL + maxPaginationNumber['href']
     
     #Get the HTML of the last page on the forum
     try:

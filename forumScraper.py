@@ -1,6 +1,10 @@
 import sys
+import os
 from bs4 import BeautifulSoup
 import urllib.request
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TimestampPath = os.path.join(BASE_DIR, "PostTimestamp.txt")
 
 class returnObject:
     def __init__(self, forumURL = None, forumPost = None, username = None, timestamp = None):
@@ -52,14 +56,14 @@ def getLatestForumPost():
 
     # Find the timestamp of the latest entry on the latest page 
     latestReplyTimestamp = soup.findAll('p', class_="forum-post__time-below")[-1].get_text()
-    with open(r"PostTimestamp.txt", "r") as fp:
+    with open(TimestampPath, "r") as fp:
         latestReplySaved = fp.read()
 
     #Check if the timestamp matches that of the previously fetched latest message
     #If these do not match, it means a new message has been posted. Save the new timestamp
     if(latestReplyTimestamp != latestReplySaved):
 
-        with open(r"PostTimestamp.txt", "w+") as fp:
+        with open(TimestampPath, "w+") as fp:
             fp.write(latestReplyTimestamp)
             fp.close()
 

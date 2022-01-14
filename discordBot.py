@@ -3,15 +3,20 @@ from discord.ext import commands
 import os
 import asyncio
 from dotenv import load_dotenv
+import sqlite3
 
 import forumScraper
+import databaseHelper
 
 load_dotenv()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
 client = discord.Client()
+db = databaseHelper.DatabaseInstance(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
 async def on_ready():
@@ -27,6 +32,11 @@ async def pollForum():
         #The results object will only hold data if the scraper has retrieved a new message
         if(results.forumPost != None):
             print("Choobs Forum Bot is sending a message!")
+
+            #Increment the postcounter for the user who posted
+            #If the user is not yet in our db, add the user
+            db.incrementUserPostCounter(results.username)
+
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
             channel = client.get_channel(int(CHANNEL))
             

@@ -40,21 +40,24 @@ async def pollForum():
             #If the user is not yet in our db, add the user
             userPostCount = db.incrementUserPostCounter(results.username)
 
-            myName = client.get_all_members()
-            for x in myName:
-                    print(x.name, x.id)
+            #Retrieve the Discord Member object based on nickname ("Only linkable parameter")
+            #TODO Write to db maybe, ID atleast?
+            #TODO Works for single-word names, no spaces yet etc. "/xA0"
+            discordMember = discord.utils.get(client.get_all_members(), nick=results.username.encode())
+                
 
             #Determine role to grant user, if any threshold is passed
             roleId = None
             if(userPostCount >= constants.FORUM_ROLE_SENIOR_THRESHOLD):
                 roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
             elif(userPostCount >= constants.FORUM_ROLE_MEDIOR_THRESHOLD):
-                roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
+                roleId = os.getenv('DISCORD_FORUM_ROLE_MEDIOR_ID')
             elif(userPostCount >= constants.FORUM_ROLE_JUNIOR_THRESHOLD):
-                roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
+                roleId = os.getenv('DISCORD_FORUM_ROLE_JUNIOR_ID')
 
-            # if(roleId != None):
-        
+            if(roleId != None):
+                discordMember.add_roles(roleId)
+            
 
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
             channel = client.get_channel(int(CHANNEL))

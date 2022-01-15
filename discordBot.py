@@ -16,7 +16,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
 client = discord.Client()
-db = databaseHelper.DatabaseInstance(os.path.join(BASE_DIR, "ChoobsForum.db"))
+db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
 async def on_ready():
@@ -35,7 +35,7 @@ async def pollForum():
 
             #Increment the postcounter for the user who posted
             #If the user is not yet in our db, add the user
-            db.incrementUserPostCounter(results.username)
+            userPostCount = db.incrementUserPostCounter(results.username)
 
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
             channel = client.get_channel(int(CHANNEL))

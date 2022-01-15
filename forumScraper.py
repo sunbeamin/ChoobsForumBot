@@ -30,6 +30,9 @@ def getLatestForumPost():
     except urllib.error.URLError as e:
         print("Caught URL Error: ", e.__dict__)
         return forumData
+    except ConnectionResetError as e:
+        print("Caught URL Error: ", e.__dict__)
+        return forumData
 
     soup = BeautifulSoup(html, features="html.parser")
 
@@ -49,6 +52,9 @@ def getLatestForumPost():
         print("Caught HTTP Error: ", e.__dict__)
         return forumData
     except urllib.error.URLError as e:
+        print("Caught URL Error: ", e.__dict__)
+        return forumData
+    except ConnectionResetError as e:
         print("Caught URL Error: ", e.__dict__)
         return forumData
 

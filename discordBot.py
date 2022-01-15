@@ -7,6 +7,7 @@ import sqlite3
 
 import forumScraper
 import databaseHelper
+import constants
 
 load_dotenv()
 
@@ -15,7 +16,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+client = discord.Client(intents=intents)
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
@@ -37,6 +40,22 @@ async def pollForum():
             #If the user is not yet in our db, add the user
             userPostCount = db.incrementUserPostCounter(results.username)
 
+            myName = client.get_all_members()
+            for x in myName:
+                    print(x.name, x.id)
+
+            #Determine role to grant user, if any threshold is passed
+            roleId = None
+            if(userPostCount >= constants.FORUM_ROLE_SENIOR_THRESHOLD):
+                roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
+            elif(userPostCount >= constants.FORUM_ROLE_MEDIOR_THRESHOLD):
+                roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
+            elif(userPostCount >= constants.FORUM_ROLE_JUNIOR_THRESHOLD):
+                roleId = os.getenv('DISCORD_FORUM_ROLE_SENIOR_ID')
+
+            # if(roleId != None):
+        
+
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
             channel = client.get_channel(int(CHANNEL))
             
@@ -51,7 +70,7 @@ async def pollForum():
 
             await channel.send(embed=embed)
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(constants.DISCORD_BOT_FORUM_POLL_RATE_S)
 
 if __name__ == "__main__":
     client.loop.create_task(pollForum())

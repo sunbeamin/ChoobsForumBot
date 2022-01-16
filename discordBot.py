@@ -16,9 +16,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-intents = discord.Intents.default()
-intents.members = True
-client = discord.Client(intents=intents)
+client = discord.Client()
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event

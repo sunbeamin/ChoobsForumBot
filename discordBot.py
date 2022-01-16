@@ -32,16 +32,12 @@ async def pollForum():
             
             #Embed the data into a nice format
             embed=discord.Embed(
-            title="Iron Choobs Forum",
+            title=f"Iron Choobs Forum",
                 url=results.forumURL,
-                description="A new post has been placed on the Iron Choobs forum!",
                 color=discord.Color.blue())
             embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
-            embed.add_field(name="**User**", value=results.username, inline=False)
-            embed.add_field(name="**Timestamp**", value=results.timestamp, inline=False)
-            embed.add_field(name="**Post content**", value=f"```{results.forumPost} ```", inline=False)
-            embed.add_field(name="**URL**", value=results.forumURL, inline=False)
-            embed.set_footer(text="If my bot is acting up, DM me @sun beamin")
+            embed.add_field(name="User", value=results.username, inline=True)
+            embed.add_field(name="Post", value=f"```{results.forumPost} ```", inline=False)
 
             await channel.send(embed=embed)
 

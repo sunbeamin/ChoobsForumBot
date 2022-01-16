@@ -81,7 +81,7 @@ def getLatestForumPost():
         #Init the forumPost var as string so we can append our post body to it
         forumData.forumPost = ""
         for string in soup.findAll('span', class_="forum-post__body")[-1].strings:
-            forumData.forumPost = f"{forumData.forumPost}\n {string}"
+            forumData.forumPost = f"{forumData.forumPost}\n{string}"
             
     return forumData
 

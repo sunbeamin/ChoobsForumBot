@@ -11,14 +11,22 @@ import forumScraper
 import databaseHelper
 import constants
 
-load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+#Load our enviroment variables
+load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
+ROLE_JUNIOR = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
+ROLE_MEDIOR = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
+ROLE_SENIOR = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
 
-client = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()
+intents.members = True
+
+client = commands.Bot(command_prefix='!', intents=intents)
+
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
@@ -48,6 +56,19 @@ async def pollForum():
             #Increment the postcounter for the user who posted
             #If the user is not yet in our db, add the user
             userPostCount = db.incrementUserPostCounter(results.username)
+
+            #Determine if post count is high enough to assign role to user
+            #TODO Match user roleId with new roleId, if they don't match. assign
+            roleId = None
+            if (userPostCount >= constants.FORUM_ROLE_SENIOR_THRESHOLD):
+                roleId = ROLE_SENIOR
+            elif (userPostCount >= constants.FORUM_ROLE_MEDIOR_THRESHOLD):
+                roleId = ROLE_MEDIOR
+            elif (userPostCount >= constants.FORUM_ROLE_JUNIOR_THRESHOLD):
+                roleId = ROLE_JUNIOR
+
+            if (roleId != None): 
+                userDiscordId = discord.utils.get(client.get_all_members(), nick=results.username.replace(u'\xa0', u' '))
 
             #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
             channel = client.get_channel(int(CHANNEL))

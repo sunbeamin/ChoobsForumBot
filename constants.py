@@ -1,7 +1,17 @@
+import enum
+from types import MemberDescriptorType
+
 #Forum role thresholds
-FORUM_ROLE_JUNIOR_THRESHOLD = 5
-FORUM_ROLE_MEDIOR_THRESHOLD = 7
-FORUM_ROLE_SENIOR_THRESHOLD = 9
+class ForumRoleThreshold(enum.Enum):
+    JuniorThresh = 5
+    MediorThresh = 7
+    SeniorThresh = 9
+
+class ForumRole(enum.Enum):
+    Junior = 0
+    Medior = 1
+    Senior = 2
+
 
 #Poll rate for forum scraping
 DISCORD_BOT_FORUM_POLL_RATE_S = 10

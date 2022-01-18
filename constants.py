@@ -2,12 +2,12 @@ import enum
 from types import MemberDescriptorType
 
 #Forum role thresholds
-class ForumRoleThreshold(enum.Enum):
-    JuniorThresh = 5
-    MediorThresh = 7
-    SeniorThresh = 9
+class ForumRoleThreshold(enum.IntEnum):
+    Junior = 2
+    Medior = 4
+    Senior = 6
 
-class ForumRole(enum.Enum):
+class ForumRole(enum.IntEnum):
     Junior = 0
     Medior = 1
     Senior = 2

@@ -62,8 +62,49 @@ class ChoobsDatabase:
             print(f"Could not increment postcounter for user {name}")
 
         return postCount
+    
+    def getAssignedRole(self, name):
+        """
+        Get the assigned role for a user
 
-    def getPostCountHiscores(self):
+        Parameters
+        ----------
+        name : `str`\n
+            Name of the user to get role for
+        
+        Returns
+        ----------
+        role : `int`\n
+            currently assigned role
+        """
+        rows = None
+        try:
+            cursor = self.dbConn.execute(f"SELECT AssignedRole from Users WHERE \"Name\"='{name}'")
+            rows = cursor.fetchone()
+            rows = rows[0]
+        except sqlite3.Error as e:
+                print(e)
+
+        return rows
+    
+    def setAssignedRole(self, name, role):
+        """
+        Set the assigned role for a user
+
+        Parameters
+        ----------
+        name : `str`\n
+            Name of the user to set role for
+        role : `int`\n
+            Role enum to write
+        """
+        try:
+            cursor = self.dbConn.execute(f"UPDATE Users SET AssignedRole = {role} WHERE \"Name\"='{name}'")
+            self.dbConn.commit() 
+        except sqlite3.Error as e:
+                print(e)
+
+	def getPostCountHiscores(self):
         """
         Gets a list of 10 users with highest postcount
         

@@ -1,4 +1,6 @@
 from itertools import count
+from collections import namedtuple
+from typing import NamedTuple
 import discord
 from discord.ext import commands
 import os
@@ -19,9 +21,9 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL_ID = os.getenv('DISCORD_CHANNEL')
 GUILD_ID = os.getenv('DISCORD_GUILD')
-ROLE_JUNIOR = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
-ROLE_MEDIOR = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
-ROLE_SENIOR = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
+ROLE_ID_JUNIOR = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
+ROLE_ID_MEDIOR = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
+ROLE_ID_SENIOR = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -29,6 +31,15 @@ intents.members = True
 client = commands.Bot(command_prefix='!', intents=intents)
 
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
+
+class Role(NamedTuple):
+    id: int
+    name: constants.ForumRole
+
+#Make a tuple of all the roles
+roleList = (Role(id=ROLE_ID_JUNIOR, name=constants.ForumRole.Junior),
+            Role(id=ROLE_ID_MEDIOR, name=constants.ForumRole.Medior),
+            Role(id=ROLE_ID_SENIOR, name=constants.ForumRole.Senior),)
 
 @client.event
 async def on_ready():
@@ -54,7 +65,9 @@ async def pollForum():
         if(results.forumPost != None):
             print("Choobs Forum Bot is sending a message!")
 
+            #Retrieve the channel and guild (server) we want to send to.
             guild = client.get_guild(int(GUILD_ID))
+            channel = client.get_channel(int(CHANNEL_ID))
             
             #Properly format the username:
             results.username = results.username.replace(u'\xa0', u' ')
@@ -64,30 +77,31 @@ async def pollForum():
             userPostCount = db.incrementUserPostCounter(results.username)
 
             #Determine if post count is high enough to assign role to user
-            roleId = None
-            roleName = None
+            newRole = None
             if (userPostCount >= constants.ForumRoleThreshold.Senior):
-                roleId = ROLE_SENIOR
-                roleName = constants.ForumRole.Senior
+                newRole = roleList[constants.ForumRole.Senior]
             elif (userPostCount >= constants.ForumRoleThreshold.Medior):
-                roleId = ROLE_MEDIOR
-                roleName = constants.ForumRole.Medior
+                newRole = roleList[constants.ForumRole.Medior]
             elif (userPostCount >= constants.ForumRoleThreshold.Junior):
-                roleId = ROLE_JUNIOR
-                roleName = constants.ForumRole.Junior
+                newRole = roleList[constants.ForumRole.Junior]
 
             #If the roleId is set (i.e. any of the above conditions is valid)
             #AND the role to set is not the role already set (prevents re-setting roles every time)
-            assignedRole = db.getAssignedRole(results.username)
-            if ((roleId != None) and (assignedRole != roleName)): 
-                userDiscord = discord.utils.get(client.get_all_members(), nick=results.username)
-                db.setAssignedRole(name=results.username, role=int(roleName))
-                print(guild.get_role(int(roleId)))
-                await userDiscord.add_roles(guild.get_role(int(roleId)))
+            if (newRole != None):
+                assignedRole = db.getAssignedRole(results.username)
+                if ((newRole.id != None) and (assignedRole != newRole.name)): 
+                    userDiscord = discord.utils.get(client.get_all_members(), nick=results.username)
+                    db.setAssignedRole(name=results.username, role=int(newRole.name))
 
+                    #Remove old assigned forum roles by iterating through the existing roles and matching to new role
+                    for r in roleList:
+                        if(r.name != newRole.name):
+                            await userDiscord.remove_roles(guild.get_role(int(r.id)))
 
-            #Retrieve the channel we want to send to. Replace this with the ID of the desired Discord channel
-            channel = client.get_channel(int(CHANNEL_ID))
+                    #Add role to user and mention assignment in a message
+                    await userDiscord.add_roles(guild.get_role(int(newRole.id)))
+                    await channel.send(f"{userDiscord.mention} has just reached the role of **{guild.get_role(int(newRole.id))}**!")
+
             
             #Embed the data into a nice format
             embed=discord.Embed(

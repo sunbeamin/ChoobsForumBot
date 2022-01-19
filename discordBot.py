@@ -90,17 +90,21 @@ async def pollForum():
             if (newRole != None):
                 assignedRole = db.getAssignedRole(results.username)
                 if ((newRole.id != None) and (assignedRole != newRole.name)): 
+                    #Retrieve ALL users in the server, 
                     userDiscord = discord.utils.get(client.get_all_members(), nick=results.username)
                     db.setAssignedRole(name=results.username, role=int(newRole.name))
 
-                    #Remove old assigned forum roles by iterating through the existing roles and matching to new role
-                    for r in roleList:
-                        if(r.name != newRole.name):
-                            await userDiscord.remove_roles(guild.get_role(int(r.id)))
+                    if(userDiscord == None):
+                        await channel.send(f"I tried to assign the role of **{guild.get_role(int(newRole.id))}**! to {results.username}\n  but I couldn't find a Discord user which matches this name")
+                    else:
+                        #Remove old assigned forum roles by iterating through the existing roles and matching to new role
+                        for r in roleList:
+                            if(r.name != newRole.name):
+                                await userDiscord.remove_roles(guild.get_role(int(r.id)))
 
-                    #Add role to user and mention assignment in a message
-                    await userDiscord.add_roles(guild.get_role(int(newRole.id)))
-                    await channel.send(f"{userDiscord.mention} has just reached the role of **{guild.get_role(int(newRole.id))}**!")
+                        #Add role to user and mention assignment in a message
+                        await userDiscord.add_roles(guild.get_role(int(newRole.id)))
+                        await channel.send(f"{userDiscord.mention} has just reached the role of **{guild.get_role(int(newRole.id))}**!")
 
             
             #Embed the data into a nice format

@@ -49,6 +49,7 @@ class ChoobsDatabase:
             except sqlite3.Error as e:
                 print(e)
 
+        #If user was found, increment post count by 1 
         elif(len(rows) == 1):
             try:
                 postCount = rows[0][1] + 1

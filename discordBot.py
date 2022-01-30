@@ -7,6 +7,7 @@ import os
 import asyncio
 from dotenv import load_dotenv
 import sqlite3
+import re
 from tabulate import tabulate
 
 import forumScraper
@@ -91,7 +92,17 @@ async def pollForum():
                 assignedRole = db.getAssignedRole(results.username)
                 if ((newRole.id != None) and (assignedRole != newRole.name)): 
                     #Retrieve ALL users in the server, 
-                    userDiscord = discord.utils.get(client.get_all_members(), nick=results.username)
+                    allDiscordMembers = client.get_all_members()
+
+                    #Check if the name of the forum poster, matches any discord users name.
+                    #Allows formats like "name 1 | name 2" in this manner
+                    for user in allDiscordMembers:
+                        foundUser = re.search(f"{results.username}", user.nick)
+                        if(foundUser != None):
+                            userDiscord = user
+                            break
+
+                    # Set the new role locally in the db
                     db.setAssignedRole(name=results.username, role=int(newRole.name))
 
                     if(userDiscord == None):

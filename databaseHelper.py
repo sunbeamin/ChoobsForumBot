@@ -62,3 +62,14 @@ class ChoobsDatabase:
             print(f"Could not increment postcounter for user {name}")
 
         return postCount
+
+    def getPostCountHiscores(self):
+        """
+        Gets a list of 10 users with highest postcount
+        
+        Returns
+        ----------
+        List of tuples with names and their respective post count
+        """
+        cursor = self.dbConn.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMIT 10;")
+        return cursor.fetchall()

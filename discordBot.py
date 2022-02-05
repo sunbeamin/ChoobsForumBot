@@ -1,9 +1,11 @@
+from itertools import count
 import discord
 from discord.ext import commands
 import os
 import asyncio
 from dotenv import load_dotenv
 import sqlite3
+from tabulate import tabulate
 
 import forumScraper
 import databaseHelper
@@ -16,16 +18,25 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-client = discord.Client()
+client = commands.Bot(command_prefix='!')
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
+@client.command()
+async def hiscores(ctx):
+    rowIDs = range(1,11)
+    #Retrieve a list of the top 10 users and their respective postcount. tabulate it to look nicer
+    hiscoresList = db.getPostCountHiscores()
+    hiscoreString = tabulate(hiscoresList, headers=["Rank", "Name", "Count"], tablefmt="fancy_grid", showindex=rowIDs)
+
+    await ctx.send(f"```{hiscoreString}```")
+
 async def pollForum():
     await client.wait_until_ready()
-
+    
     while True:
         print("Checking forum...")
         results = forumScraper.getLatestForumPost()

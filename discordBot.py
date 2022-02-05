@@ -16,15 +16,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-client = discord.Client()
+client = commands.Bot(command_prefix='!')
 db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
+@client.command()
+async def hiscores(ctx):
+    await ctx.send(db.getPostCountHiscores())
+
+
 async def pollForum():
     await client.wait_until_ready()
+    db.getPostCountHiscores()
 
     while True:
         print("Checking forum...")

@@ -9,5 +9,6 @@ idna-ssl==1.1.0
 multidict==5.2.0
 python-dotenv==0.19.2
 soupsieve==2.3.1
+tabulate==0.8.9
 typing_extensions==4.0.1
 yarl==1.7.2

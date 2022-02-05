@@ -1,9 +1,11 @@
+from itertools import count
 import discord
 from discord.ext import commands
 import os
 import asyncio
 from dotenv import load_dotenv
 import sqlite3
+from tabulate import tabulate
 
 import forumScraper
 import databaseHelper
@@ -25,13 +27,16 @@ async def on_ready():
 
 @client.command()
 async def hiscores(ctx):
-    await ctx.send(db.getPostCountHiscores())
+    rowIDs = range(1,11)
+    #Retrieve a list of the top 10 users and their respective postcount. tabulate it to look nicer
+    hiscoresList = db.getPostCountHiscores()
+    hiscoreString = tabulate(hiscoresList, headers=["Rank", "Name", "Count"], tablefmt="fancy_grid", showindex=rowIDs)
 
+    await ctx.send(f"```{hiscoreString}```")
 
 async def pollForum():
     await client.wait_until_ready()
-    db.getPostCountHiscores()
-
+    
     while True:
         print("Checking forum...")
         results = forumScraper.getLatestForumPost()

@@ -71,5 +71,8 @@ class ChoobsDatabase:
         ----------
         List of tuples with names and their respective post count
         """
-        cursor = self.dbConn.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMIT 10;")
+        try:
+            cursor = self.dbConn.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMIT 10;")
+        except sqlite3.Error as e:
+                print(e)   
         return cursor.fetchall()

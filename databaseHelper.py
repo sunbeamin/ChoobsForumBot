@@ -106,7 +106,7 @@ class ChoobsDatabase:
         except sqlite3.Error as e:
                 print(e)
 
-	def getPostCountHiscores(self):
+    def getPostCountHiscores(self):
         """
         Gets a list of 10 users with highest postcount
         

@@ -22,9 +22,10 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL_ID = os.getenv('DISCORD_CHANNEL')
 GUILD_ID = os.getenv('DISCORD_GUILD')
-ROLE_ID_JUNIOR = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
-ROLE_ID_MEDIOR = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
-ROLE_ID_SENIOR = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
+ROLE_ID_JUNIOR  = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
+ROLE_ID_MEDIOR  = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
+ROLE_ID_SENIOR  = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
+ROLE_ID_GOD     = os.getenv('DISCORD_FORUM_ROLE_GOD')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -40,7 +41,8 @@ class Role(NamedTuple):
 #Make a tuple of all the roles
 roleList = (Role(id=ROLE_ID_JUNIOR, name=constants.ForumRole.Junior),
             Role(id=ROLE_ID_MEDIOR, name=constants.ForumRole.Medior),
-            Role(id=ROLE_ID_SENIOR, name=constants.ForumRole.Senior),)
+            Role(id=ROLE_ID_SENIOR, name=constants.ForumRole.Senior),
+            Role(id=ROLE_ID_GOD, name=constants.ForumRole.God),)
 
 @client.event
 async def on_ready():
@@ -69,17 +71,16 @@ async def pollForum():
             #Retrieve the channel and guild (server) we want to send to.
             guild = client.get_guild(int(GUILD_ID))
             channel = client.get_channel(int(CHANNEL_ID))
-            
-            #Properly format the username:
-            results.username = results.username.replace(u'\xa0', u' ')
-
+        
             #Increment the postcounter for the user who posted
             #If the user is not yet in our db, add the user
             userPostCount = db.incrementUserPostCounter(results.username)
 
             #Determine if post count is high enough to assign role to user
             newRole = None
-            if (userPostCount >= constants.ForumRoleThreshold.Senior):
+            if (userPostCount >= constants.ForumRoleThreshold.God):
+                newRole = roleList[constants.ForumRole.God]
+            elif (userPostCount >= constants.ForumRoleThreshold.Senior):
                 newRole = roleList[constants.ForumRole.Senior]
             elif (userPostCount >= constants.ForumRoleThreshold.Medior):
                 newRole = roleList[constants.ForumRole.Medior]
@@ -93,14 +94,17 @@ async def pollForum():
                 if ((newRole.id != None) and (assignedRole != newRole.name)): 
                     #Retrieve ALL users in the server, 
                     allDiscordMembers = client.get_all_members()
+                    userDiscord = None
 
                     #Check if the name of the forum poster, matches any discord users name.
-                    #Allows formats like "name 1 | name 2" in this manner
+                    #Name is matches as long as {results.username} is present in a users nick
+                    formattedDiscName = results.username.replace(u'\xa0', u' ')
                     for user in allDiscordMembers:
-                        foundUser = re.search(f"{results.username}", user.nick)
-                        if(foundUser != None):
-                            userDiscord = user
-                            break
+                        if(user.nick != None):
+                            foundUser = re.search(f"{formattedDiscName}", user.nick)
+                            if(foundUser != None):
+                                userDiscord = user
+                                break
 
                     # Set the new role locally in the db
                     db.setAssignedRole(name=results.username, role=int(newRole.name))

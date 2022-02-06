@@ -82,7 +82,8 @@ class ChoobsDatabase:
         try:
             cursor = self.dbConn.execute(f"SELECT AssignedRole from Users WHERE \"Name\"='{name}'")
             rows = cursor.fetchone()
-            rows = rows[0]
+            if(rows != None):
+                rows = rows[0]
         except sqlite3.Error as e:
                 print(e)
 

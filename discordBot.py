@@ -100,11 +100,13 @@ async def pollForum():
                     #Name is matches as long as {results.username} is present in a users nick
                     formattedDiscName = results.username.replace(u'\xa0', u' ')
                     for user in allDiscordMembers:
-                        if(user.nick != None):
+                        if(user.nick == None):
+                            foundUser = re.search(f"{formattedDiscName}", user.name)
+                        else:
                             foundUser = re.search(f"{formattedDiscName}", user.nick)
-                            if(foundUser != None):
-                                userDiscord = user
-                                break
+                        if(foundUser != None):
+                            userDiscord = user
+                            break
 
                     # Set the new role locally in the db
                     db.setAssignedRole(name=results.username, role=int(newRole.name))

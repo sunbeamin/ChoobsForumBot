@@ -4,7 +4,7 @@ from types import MemberDescriptorType
 #Forum role thresholds
 class ForumRoleThreshold(enum.IntEnum):
     Junior  = 100
-    Medior  = 250
+    Medior  = 58
     Senior  = 500
     God     = 1000
 

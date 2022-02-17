@@ -11,11 +11,11 @@ import re
 from tabulate import tabulate
 
 import forumScraper
-import databaseHelper
+import db
 import constants
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 #Load our enviroment variables
 load_dotenv()
@@ -31,9 +31,6 @@ intents = discord.Intents.default()
 intents.members = True
 
 client = commands.Bot(command_prefix='!', intents=intents)
-
-db = databaseHelper.ChoobsDatabase(os.path.join(BASE_DIR, "ChoobsForum.db"))
-
 class Role(NamedTuple):
     id: int
     name: constants.ForumRole
@@ -52,10 +49,12 @@ async def on_ready():
 async def hiscores(ctx):
     rowIDs = range(1,11)
     #Retrieve a list of the top 10 users and their respective postcount. tabulate it to look nicer
-    hiscoresList = db.getPostCountHiscores()
-    hiscoreString = tabulate(hiscoresList, headers=["Rank", "Name", "Count"], tablefmt="fancy_grid", showindex=rowIDs)
-
-    await ctx.send(f"```{hiscoreString}```")
+    try:
+        hiscoresList = db.getPostCountHiscores()
+        hiscoreString = tabulate(hiscoresList, headers=["Rank", "Name", "Count"], tablefmt="fancy_grid", showindex=rowIDs)
+        await ctx.send(f"```{hiscoreString}```")
+    except Exception as e:
+        await ctx.send(f"Could not gather a hiscores list")
 
 async def pollForum():
     await client.wait_until_ready()

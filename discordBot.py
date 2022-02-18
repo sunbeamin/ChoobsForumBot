@@ -1,6 +1,4 @@
-from inspect import trace
 from itertools import count
-from collections import namedtuple
 from typing import NamedTuple
 import discord
 from discord.ext import commands
@@ -9,7 +7,6 @@ import asyncio
 from dotenv import load_dotenv
 import sqlite3
 import re
-from pkg_resources import DEVELOP_DIST
 from tabulate import tabulate
 import traceback
 import sys

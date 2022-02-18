@@ -57,7 +57,7 @@ def incrementUserPostCounter(name):
             return postCount
 
         except sqlite3.Error as e:
-            print(e)
+            raise sqlite3.Error(e)
 
 def getAssignedRole(name):
     """
@@ -84,9 +84,7 @@ def getAssignedRole(name):
             
             return rows[0]
         except sqlite3.Error as e:
-            print(e)
-            raise NotFoundError(f"Unable to find role of user: {name}")
-
+            raise sqlite3.Error(e)
 
 
 def setAssignedRole(name, role):
@@ -104,8 +102,7 @@ def setAssignedRole(name, role):
         try:
             cur.execute(f"UPDATE Users SET AssignedRole = {role} WHERE \"Name\"='{name}'")
         except sqlite3.Error as e:
-            print(e)
-            raise NotFoundError(f"Unable to find role of user: {name}")
+            raise sqlite3.Error(e)
 
 def getPostCountHiscores():
     """
@@ -117,7 +114,7 @@ def getPostCountHiscores():
     """
     with SQLite() as cur:
         try:
-            cur.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMIT 10;")
+            cur.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMI 10;")
             return cur.fetchall()
         except sqlite3.Error as e:
-                print(e)   
+                raise sqlite3.Error(e)   

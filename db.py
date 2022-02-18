@@ -114,7 +114,7 @@ def getPostCountHiscores():
     """
     with SQLite() as cur:
         try:
-            cur.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMI 10;")
+            cur.execute("SELECT Name, PostCount FROM Users ORDER BY PostCount DESC LIMIT 10;")
             return cur.fetchall()
         except sqlite3.Error as e:
                 raise sqlite3.Error(e)   

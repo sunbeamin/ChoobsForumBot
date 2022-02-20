@@ -104,7 +104,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -132,4 +131,4 @@ dmypy.json
 ChoobsForum.db-journal
 ChoobsForum.db.sqbpro
 ChoobsForum.db
-ChoobsForum.db
+*.sqbpro

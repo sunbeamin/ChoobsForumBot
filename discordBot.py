@@ -13,7 +13,7 @@ import constants
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-DEV_ID          = os.getenv('DISCORD_DEVELOPER_ID')
+
 
 intents = discord.Intents.default()
 intents.members = True
@@ -57,8 +57,8 @@ async def pollForum():
             
         except Exception as e:
             traceback.print_exc(chain=True)
-            user = client.get_user(int(DEV_ID))
-            await user.send(''.join(traceback.format_exception(None, e, e.__traceback__)))
+            message = ''.join(traceback.format_exception(None, e, e.__traceback__))
+            await dm.sendDevMessage(message)
 
         finally:
             await asyncio.sleep(constants.DISCORD_BOT_FORUM_POLL_RATE_S)

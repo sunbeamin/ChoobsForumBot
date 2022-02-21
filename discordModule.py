@@ -9,6 +9,7 @@ import constants
 
 
 #Load our enviroment variables 
+load_dotenv()
 CHANNEL_ID      = os.getenv('DISCORD_CHANNEL')
 GUILD_ID        = os.getenv('DISCORD_GUILD')
 ROLE_ID_JUNIOR  = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')

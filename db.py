@@ -29,14 +29,11 @@ def setPostCount(name, postcount):
     ----------
     name : `str`\n
         Name of the user to increment postcount for
-    
-    Returns
-    ----------
-    postCount : `int`\n
+        
+    postcount : `int`\n
         The postcount after increment
     """
-    postCount = 0
-
+    
     with SQLite() as cur:
         try:
             results = cur.execute(f"SELECT ID from Users WHERE \"Name\"='{name}'")
@@ -48,13 +45,13 @@ def setPostCount(name, postcount):
 
             #If user was found, increment post count by 1 
             elif(len(rows) == 1):
-                cur.execute(f"UPDATE Users SET PostCount = {postCount} where ID = {rows[0][0]}")  
+                cur.execute(f"UPDATE Users SET PostCount = {postcount} where ID = {rows[0][0]}")  
 
             else:
-                postCount = 0
+                postcount = 0
                 raise NotFoundError(f"Unable to find user: {name}")
 
-            return postCount
+            return postcount
 
         except sqlite3.Error as e:
             raise sqlite3.Error(e)

@@ -5,7 +5,7 @@ import asyncio
 from dotenv import load_dotenv
 from tabulate import tabulate
 import traceback
-from discordModule import DiscordModule
+import discordModule
 
 import forumScraper
 import db
@@ -47,14 +47,14 @@ async def pollForum():
                 print("Choobs Forum Bot is sending a message!")
 
                 #Make an instantiation of the DiscordModule class with the current post/user info to handle discord actions
-                dm = DiscordModule(client, results.username)
+                dm = discordModule.DiscordModule(client, results.username)
                 await dm.sendForumPost(results)
                 await dm.checkRoles()
             
         except Exception as e:
             traceback.print_exc(chain=True)
             message = ''.join(traceback.format_exception(None, e, e.__traceback__))
-            await dm.sendDevMessage(message)
+            await discordModule.sendDevMessage(client, message)
 
         finally:
             await asyncio.sleep(constants.DISCORD_BOT_FORUM_POLL_RATE_S)

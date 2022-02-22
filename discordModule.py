@@ -116,6 +116,6 @@ class DiscordModule:
                     await userDiscord.add_roles(self.guild.get_role(int(newRole.id)))
                     await self.channel.send(f"{userDiscord.mention} has just reached the role of **{self.guild.get_role(int(newRole.id))}**!")
     
-    async def sendDevMessage(self, message):
-        user = self.client.get_user(int(DEV_ID))
-        await user.send(message)
+async def sendDevMessage(client, message):
+    user = client.get_user(int(DEV_ID))
+    await user.send(f"```{message}```")

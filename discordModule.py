@@ -34,13 +34,16 @@ class DiscordModule:
     This class is a context manager for handling discord
     related operations such as assigned roles or sending messages
     """
-    def __init__(self, client, user=None, postcount=None):
+    def __init__(self, client, user=None):
         if client != None:
             self.client = client
             self.guild = client.get_guild(int(GUILD_ID))
             self.channel = client.get_channel(int(CHANNEL_ID))
             self.user = user
-            self.postcount = postcount
+            try:
+                self.postcount = db.getPostCount(user)
+            except db.NotFoundError:
+                self.postcount = 0
         else:
             raise Exception(f"Cannot instantiate discord class. No or incorrect client given")
     def __enter__(self):
@@ -49,6 +52,10 @@ class DiscordModule:
         pass 
 
     async def sendForumPost(self, post):
+
+        #Increment the postcounter for the user who posted
+        self.postcount = self.postcount + 1
+        db.setPostCount(self.user, self.postcount)
 
         #Embed the data into a nice format
         embed=discord.Embed(

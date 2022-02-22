@@ -46,12 +46,8 @@ async def pollForum():
             if(results.forumPost != None):
                 print("Choobs Forum Bot is sending a message!")
 
-                #Increment the postcounter for the user who posted
-                #If the user is not yet in our db, add the user
-                userPostCount = db.incrementUserPostCounter(results.username)
-
                 #Make an instantiation of the DiscordModule class with the current post/user info to handle discord actions
-                dm = DiscordModule(client, results.username, userPostCount)
+                dm = DiscordModule(client, results.username)
                 await dm.sendForumPost(results)
                 await dm.checkRoles()
             

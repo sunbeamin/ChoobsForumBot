@@ -20,9 +20,10 @@ class SQLite:
 class NotFoundError(Exception):
     pass
 
-def incrementUserPostCounter(name):
+def setPostCount(name, postcount):
     """
-    Increment the post count variable of given user by 1
+    Set the postcount for a user.
+    If name not yet in database, insert and set postcount to 1
 
     Parameters
     ----------
@@ -38,7 +39,7 @@ def incrementUserPostCounter(name):
 
     with SQLite() as cur:
         try:
-            results = cur.execute(f"SELECT ID, PostCount from Users WHERE \"Name\"='{name}'")
+            results = cur.execute(f"SELECT ID from Users WHERE \"Name\"='{name}'")
             rows = results.fetchall()
 
             #No user with this name in our DB yet? Insert a new row
@@ -47,7 +48,6 @@ def incrementUserPostCounter(name):
 
             #If user was found, increment post count by 1 
             elif(len(rows) == 1):
-                postCount = rows[0][1] + 1
                 cur.execute(f"UPDATE Users SET PostCount = {postCount} where ID = {rows[0][0]}")  
 
             else:
@@ -101,6 +101,33 @@ def setAssignedRole(name, role):
     with SQLite() as cur:
         try:
             cur.execute(f"UPDATE Users SET AssignedRole = {role} WHERE \"Name\"='{name}'")
+        except sqlite3.Error as e:
+            raise sqlite3.Error(e)
+    
+def getPostCount(name):
+    """
+    Get the postcount for a user
+
+    Parameters
+    ----------
+    name : `str`\n
+        Name of the user to get postcount for
+    
+    Returns
+    ----------
+    postcount : `int`\n
+        postcount
+    """
+    rows = None
+
+    with SQLite() as cur:
+        try:
+            cursor = cur.execute(f"SELECT PostCount from Users WHERE \"Name\"='{name}'")
+            rows = cursor.fetchone()
+            if rows is None:
+                raise NotFoundError(f"Unable to find role of user: {name}")
+            
+            return rows[0]
         except sqlite3.Error as e:
             raise sqlite3.Error(e)
 

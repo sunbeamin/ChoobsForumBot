@@ -3,6 +3,9 @@ import os
 from dotenv import load_dotenv
 from typing import NamedTuple
 import re
+import tabulate
+import discord
+from discord.ext import commands
 
 import db
 import constants
@@ -18,6 +21,12 @@ ROLE_ID_SENIOR  = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
 ROLE_ID_GOD     = os.getenv('DISCORD_FORUM_ROLE_GOD')
 DEV_ID          = os.getenv('DISCORD_DEVELOPER_ID')
 
+intents = discord.Intents.default()
+intents.members = True
+client = commands.Bot(command_prefix='!', intents=intents)
+guild = None
+channel = None
+
 #Class used for holding the role discord id and its name 
 class Role(NamedTuple):
     id: int
@@ -29,23 +38,49 @@ roleList = (Role(id=ROLE_ID_JUNIOR, name=constants.ForumRole.Junior),
             Role(id=ROLE_ID_SENIOR, name=constants.ForumRole.Senior),
             Role(id=ROLE_ID_GOD, name=constants.ForumRole.God),)
 
-class DiscordModule:
+@client.event
+async def on_ready():
+    #Singleton variables for interacting with the discord server
+    global client
+    global guild
+    global channel
+    print('We have logged in as {0.user}'.format(client))
+    guild = client.get_guild(int(GUILD_ID))
+    channel = client.get_channel(int(CHANNEL_ID))
+
+@client.command()
+async def hiscores(ctx):
+    rowIDs = range(1,11)
+    #Retrieve a list of the top 10 users and their respective postcount. tabulate it to look nicer
+    try:
+        hiscoresList = db.getPostCountHiscores()
+        hiscoreString = tabulate(hiscoresList, headers=["Rank", "Name", "Count"], tablefmt="fancy_grid", showindex=rowIDs)
+        await ctx.send(f"```{hiscoreString}```")
+    except Exception as e:
+        await ctx.send(f"Could not gather a hiscores list")
+
+class UserModule:
     """
-    This class is a context manager for handling discord
-    related operations such as assigned roles or sending messages
+    This class is or handling discord related operations 
+    such as setting assigned roles or sending messages
     """
-    def __init__(self, client, user=None):
-        if client != None:
-            self.client = client
-            self.guild = client.get_guild(int(GUILD_ID))
-            self.channel = client.get_channel(int(CHANNEL_ID))
+    def __init__(self, user=None):
+        #Save the singleton variables to our object so we can easily interface
+        global client
+        global guild
+        global channel
+        self.client = client
+        self.guild = guild
+        self.channel = channel
+        self.discordUser = None
+        if user != None:
             self.user = user
             try:
                 self.postcount = db.getPostCount(user)
             except db.NotFoundError:
                 self.postcount = 0
         else:
-            raise Exception(f"Cannot instantiate discord class. No or incorrect client given")
+            raise Exception(f"Cannot instantiate discord class. No or incorrect user given")
     def __enter__(self):
         return self
     def __exit__(self, type, value, traceback):
@@ -90,9 +125,9 @@ class DiscordModule:
                 db.setAssignedRole(name=self.user, role=int(newRole.name))
 
                 #Get the discord user based on forum name
-                discordUser = self.getDiscordUser()
+                self.discordUser = self.getDiscordUser()
 
-                if(discordUser == None):
+                if(self.discordUser == None):
                     err = f"I tried to assign the role of **{self.guild.get_role(int(newRole.id))}**! to {self.user}\nbut I couldn't find a Discord user which matches this name"
                     await self.channel.send(err)
                     raise Exception(err)
@@ -100,11 +135,11 @@ class DiscordModule:
                     #Remove old assigned forum roles by iterating through the existing roles and matching to new role
                     for r in roleList:
                         if(r.name != newRole.name):
-                            await discordUser.remove_roles(self.guild.get_role(int(r.id)))
+                            await self.discordUser.remove_roles(self.guild.get_role(int(r.id)))
 
                     #Add role to user and mention assignment in a message
-                    await discordUser.add_roles(self.guild.get_role(int(newRole.id)))
-                    await self.channel.send(f"{discordUser.mention} has just reached the role of **{self.guild.get_role(int(newRole.id))}**!")
+                    await self.discordUser.add_roles(self.guild.get_role(int(newRole.id)))
+                    await self.channel.send(f"{self.discordUser.mention} has just reached the role of **{self.guild.get_role(int(newRole.id))}**!")
     
     def getDiscordUser(self):
         allDiscordMembers = self.client.get_all_members()
@@ -121,6 +156,7 @@ class DiscordModule:
                 return user 
         return None
     
-async def sendDevMessage(client, message):
+async def sendDevMessage(message):
+    global client
     user = client.get_user(int(DEV_ID))
     await user.send(f"```{message}```")

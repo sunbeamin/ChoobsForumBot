@@ -41,7 +41,7 @@ def setPostCount(name, postcount):
 
             #No user with this name in our DB yet? Insert a new row
             if(len(rows) == 0):
-                cur.execute(f"INSERT INTO Users (Name, PostCount) VALUES ('{name}', 1)")
+                cur.execute(f"INSERT INTO Users (Name, PostCount, AssignedRole) VALUES ('{name}', 1, NULL)")
 
             #If user was found, increment post count by 1 
             elif(len(rows) == 1):

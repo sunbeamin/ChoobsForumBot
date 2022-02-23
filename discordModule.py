@@ -85,36 +85,41 @@ class DiscordModule:
         if (newRole != None):
             assignedRole = db.getAssignedRole(self.user)
             if ((newRole.id != None) and (assignedRole != newRole.name)): 
-                #Retrieve ALL users in the server, 
-                allDiscordMembers = self.client.get_all_members()
-                userDiscord = None
-
-                #Check if the name of the forum poster, matches any discord users name.
-                #Name is matches as long as {results.username} is present in a users nick
-                formattedDiscName = self.user.replace(u'\xa0', u' ')
-                for user in allDiscordMembers:
-                    if(user.nick == None):
-                        foundUser = re.search(f"{formattedDiscName}", user.name)
-                    else:
-                        foundUser = re.search(f"{formattedDiscName}", user.nick)
-                    if(foundUser != None):
-                        userDiscord = user
-                        break
-
+                
                 # Set the new role locally in the db
                 db.setAssignedRole(name=self.user, role=int(newRole.name))
 
-                if(userDiscord == None):
-                    await self.channel.send(f"I tried to assign the role of **{self.guild.get_role(int(newRole.id))}**! to {self.user}\nbut I couldn't find a Discord user which matches this name")
+                #Get the discord user based on forum name
+                discordUser = self.getDiscordUser()
+
+                if(discordUser == None):
+                    err = f"I tried to assign the role of **{self.guild.get_role(int(newRole.id))}**! to {self.user}\nbut I couldn't find a Discord user which matches this name"
+                    await self.channel.send(err)
+                    raise Exception(err)
                 else:
                     #Remove old assigned forum roles by iterating through the existing roles and matching to new role
                     for r in roleList:
                         if(r.name != newRole.name):
-                            await userDiscord.remove_roles(self.guild.get_role(int(r.id)))
+                            await discordUser.remove_roles(self.guild.get_role(int(r.id)))
 
                     #Add role to user and mention assignment in a message
-                    await userDiscord.add_roles(self.guild.get_role(int(newRole.id)))
-                    await self.channel.send(f"{userDiscord.mention} has just reached the role of **{self.guild.get_role(int(newRole.id))}**!")
+                    await discordUser.add_roles(self.guild.get_role(int(newRole.id)))
+                    await self.channel.send(f"{discordUser.mention} has just reached the role of **{self.guild.get_role(int(newRole.id))}**!")
+    
+    def getDiscordUser(self):
+        allDiscordMembers = self.client.get_all_members()
+
+        #Check if the name of the forum poster, matches any discord users name.
+        #Name is matches as long as {results.username} is present in a users nick
+        formattedDiscName = self.user.replace(u'\xa0', u' ')
+        for user in allDiscordMembers:
+            if(user.nick == None):
+                foundUser = re.search(f"{formattedDiscName}", user.name)
+            else:
+                foundUser = re.search(f"{formattedDiscName}", user.nick)
+            if(foundUser != None):
+                return user 
+        return None
     
 async def sendDevMessage(client, message):
     user = client.get_user(int(DEV_ID))

@@ -3,6 +3,7 @@ import asyncio
 from dotenv import load_dotenv
 import traceback
 import discordModule as disc
+import loot
 
 import forumScraper
 import constants
@@ -26,6 +27,7 @@ async def pollForum():
                     dm = disc.UserModule(results.username)
                     await dm.sendForumPost(results)
                     await dm.checkRoles()
+                    loot.rollLoot(dm)
             
         except Exception as e:
             traceback.print_exc(chain=True)

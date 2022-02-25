@@ -14,6 +14,7 @@ import constants
 #Load our enviroment variables 
 load_dotenv()
 CHANNEL_ID      = os.getenv('DISCORD_CHANNEL')
+LOOTCHANNEL_ID  = os.getenv('DISCORD_LOOT_CHANNEL_ID')
 GUILD_ID        = os.getenv('DISCORD_GUILD')
 ROLE_ID_JUNIOR  = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
 ROLE_ID_MEDIOR  = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
@@ -26,6 +27,7 @@ intents.members = True
 client = commands.Bot(command_prefix='!', intents=intents)
 guild = None
 channel = None
+lootChannel = None
 
 #Class used for holding the role discord id and its name 
 class Role(NamedTuple):
@@ -44,9 +46,12 @@ async def on_ready():
     global client
     global guild
     global channel
+    global lootChannel
+
     print('We have logged in as {0.user}'.format(client))
     guild = client.get_guild(int(GUILD_ID))
     channel = client.get_channel(int(CHANNEL_ID))
+    lootChannel = client.get_channel(int(LOOTCHANNEL_ID))
 
 @client.command()
 async def hiscores(ctx):
@@ -69,10 +74,12 @@ class UserModule:
         global client
         global guild
         global channel
+        global lootChannel
         self.client = client
         self.guild = guild
         self.channel = channel
         self.discordUser = None
+        self.lootChannel = lootChannel
         if user != None:
             self.user = user
             try:
@@ -91,6 +98,9 @@ class UserModule:
         #Increment the postcounter for the user who posted
         self.postcount = self.postcount + 1
         db.setPostCount(self.user, self.postcount)
+
+        #Get the discord user based on forum name
+        self.discordUser = self.getDiscordUser()
 
         #Embed the data into a nice format
         embed=discord.Embed(
@@ -124,9 +134,6 @@ class UserModule:
                 # Set the new role locally in the db
                 db.setAssignedRole(name=self.user, role=int(newRole.name))
 
-                #Get the discord user based on forum name
-                self.discordUser = self.getDiscordUser()
-
                 if(self.discordUser == None):
                     err = f"I tried to assign the role of **{self.guild.get_role(int(newRole.id))}**! to {self.user}\nbut I couldn't find a Discord user which matches this name"
                     await self.channel.send(err)
@@ -155,6 +162,9 @@ class UserModule:
             if(foundUser != None):
                 return user 
         return None
+
+    async def sendLootMessage(self, message):
+        await self.lootChannel.send(message)
     
 async def sendDevMessage(message):
     global client

@@ -17,7 +17,6 @@ async def pollForum():
     while True:
         try:
             if(disc.channel != None):
-                print("Checking forum...")
                 results = forumScraper.getLatestForumPost()
                 #The results object will only hold data if the scraper has retrieved a new message
                 if(results.forumPost != None):
@@ -27,7 +26,7 @@ async def pollForum():
                     dm = disc.UserModule(results.username)
                     await dm.sendForumPost(results)
                     await dm.checkRoles()
-                    loot.rollLoot(dm)
+                    await loot.rollLoot(dm)
             
         except Exception as e:
             traceback.print_exc(chain=True)

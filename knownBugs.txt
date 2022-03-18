@@ -1,0 +1,1 @@
+New users who are inserted into the db get assigned role 0, not null

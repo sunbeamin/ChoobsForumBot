@@ -12,34 +12,39 @@ def __nothing(dm):
     print("Nothing")
 
 def __bond(dm):
+    print("OSRS Bond\n")
     global lootMessage
     if dm.discordUser is not None:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Bond 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - {dm.discordUser.mention} has won a bond through the forum loot system. Users RuneScape name is **{dm.user}**\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Bond 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - {dm.discordUser.mention} has won a bond through the forum loot system. \nUsers RuneScape name is **{dm.user}**\n----------------------------------------------------------"
     else:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Bond 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - A user (Discord name could not be found) has won a bond through the forum loot system. Users RuneScape name is **{dm.user}**\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Bond 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - A user (Discord name not found) has won a bond through the forum loot system.\nUsers RuneScape name is **{dm.user}**\n----------------------------------------------------------"
 
 def __discXP(dm):
+    print("1250 Discord XP\n")
     global lootMessage
     if dm.discordUser is not None:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: XP 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - please type the following commands to fulfill the ticket:\n!give-xp {dm.discordUser.mention} 7500\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: XP 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - please type the following commands to fulfill the ticket:\n!give-xp {dm.discordUser.mention} 1250\n----------------------------------------------------------"
     else:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: XP 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - Discord user could not be found but users Runescape name is **{dm.user}**\nPlease find the users discord and type the following commands to fulfill the ticket:\n!give-xp 'discord user' 7500\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: XP 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - Discord user could not be found but users Runescape name is **{dm.user}**\nPlease find the users discord and type the following commands to fulfill the ticket:\n!give-xp 'discord user' 1250\n----------------------------------------------------------"
 
-def __coins(dm):
+def __giftcard(dm):
     global lootMessage
+    print("Amazon giftcard\n")
     if dm.discordUser is not None:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Coins 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - please type the following commands to fulfill the ticket:\n!give-coins {dm.discordUser.mention} 19999\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Amazon Giftcard 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - {dm.discordUser.mention} has won a 10$ Amazon giftcard through the forum loot system.\n----------------------------------------------------------"
     else:
-        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Coins 🎫**\n@{dm.guild.get_role(int(ADVISOR_ID)).mention} - Discord user could not be found but users Runescape name is **{dm.user}**\nPlease find the users discord and type the following commands to fulfill the ticket:\n!give-coins 'discord user' 15000\n----------------------------------------------------------"
+        lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Amazon Giftcard 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - A user (Discord name not found) has won a 10$ Amazon giftcard through the forum loot system.\nDiscord user could not be found but users Runescape name is **{dm.user}**\n----------------------------------------------------------"
 
-loot = [(20, __nothing), (1, __bond), (10, __discXP), (5, __coins)]
+loot = [(1979, __nothing), (4, __bond), (16, __discXP), (1, __giftcard)]
 
 async def rollLoot(dm):
     global lootMessage
     weights, loots = zip(*loot)
     bigloot = random.choices(loots, weights, k=1)
-    print(f"User {dm.user} has received loot:")
+    print(f"User {dm.user} has received loot: ")
     bigloot[0](dm)
     if lootMessage is not None:
         await dm.sendLootMessage(lootMessage)
+
+
     

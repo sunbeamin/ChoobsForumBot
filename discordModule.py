@@ -63,6 +63,7 @@ async def hiscores(ctx):
         await ctx.send(f"```{hiscoreString}```")
     except Exception as e:
         await ctx.send(f"Could not gather a hiscores list")
+        await sendDevMessage(e)
 
 class UserModule:
     """

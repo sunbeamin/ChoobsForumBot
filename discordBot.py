@@ -13,8 +13,13 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 async def pollForum():
     await disc.client.wait_until_ready()
+    iterator = 0
     
     while True:
+        #Print a message every minute to indicate the bot is still running
+        if(iterator is 6):
+            print("Polling forum...")
+            iterator = 0
         try:
             if(disc.channel != None):
                 results = forumScraper.getLatestForumPost()
@@ -35,6 +40,7 @@ async def pollForum():
 
         finally:
             await asyncio.sleep(constants.DISCORD_BOT_FORUM_POLL_RATE_S)
+            iterator = iterator + 1
 
 if __name__ == "__main__":
     disc.client.loop.create_task(pollForum())

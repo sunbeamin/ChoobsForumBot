@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from typing import NamedTuple
 import re
-import tabulate
+from tabulate import tabulate
 import discord
 from discord.ext import commands
 
@@ -53,7 +53,9 @@ async def on_ready():
     channel = client.get_channel(int(CHANNEL_ID))
     lootChannel = client.get_channel(int(LOOTCHANNEL_ID))
 
-@client.command()
+@client.command(
+    help="Gathers a list of the most active forum posters"
+)
 async def hiscores(ctx):
     rowIDs = range(1,11)
     #Retrieve a list of the top 10 users and their respective postcount. tabulate it to look nicer
@@ -63,6 +65,31 @@ async def hiscores(ctx):
         await ctx.send(f"```{hiscoreString}```")
     except Exception as e:
         await ctx.send(f"Could not gather a hiscores list")
+        await sendDevMessage(e)
+
+@client.command(
+    help="Lists the Discord roles earned by posting on the forum"
+)
+async def forumroles(ctx):
+    global guild
+    msg = f"{guild.get_role(int(roleList[constants.ForumRole.God].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Senior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Medior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Junior].id)).mention}"
+    try:
+        await ctx.send(msg)
+    except Exception as e:
+        await ctx.send(f"Could not gather roles")
+        await sendDevMessage(e)
+
+@client.command(
+    help="Lists the loot that can be dropped by posting on the forum"
+)
+async def loot(ctx):
+    global guild
+    msg = [("OSRS Bond", "1/500"), ("1250 Discord XP", "1/125"), ("10$ Amazon Giftcard", "1/2000")]
+    try:
+        tabulatedList = tabulate(msg, headers=["Loot", "Droprate"], tablefmt="fancy_grid")
+        await ctx.send(f"```{tabulatedList}```")
+    except Exception as e:
+        await ctx.send(f"Could not gather loot list")
         await sendDevMessage(e)
 
 class UserModule:
@@ -79,7 +106,6 @@ class UserModule:
         self.client = client
         self.guild = guild
         self.channel = channel
-        self.discordUser = None
         self.lootChannel = lootChannel
         if user != None:
             self.user = user
@@ -89,29 +115,41 @@ class UserModule:
                 self.postcount = 0
         else:
             raise Exception(f"Cannot instantiate discord class. No or incorrect user given")
+        self.discordUser = self.getDiscordUser()
+        
     def __enter__(self):
         return self
     def __exit__(self, type, value, traceback):
         pass 
 
-    async def sendForumPost(self, post):
+    async def sendForumPost(self, post, loot):
 
         #Increment the postcounter for the user who posted
         self.postcount = self.postcount + 1
         db.setPostCount(self.user, self.postcount)
 
-        #Get the discord user based on forum name
-        self.discordUser = self.getDiscordUser()
-
         #Embed the data into a nice format
-        embed=discord.Embed(
-        title=f"Iron Choobs Forum",
-            url=post.forumURL,
-            color=discord.Color.blue())
-        embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
-        embed.add_field(name="User", value=post.username, inline=True)
-        embed.add_field(name="Post Count", value=self.postcount, inline=True)
-        embed.add_field(name="Post", value=f"```{post.forumPost} ```", inline=False)
+        if loot is "Nothing":
+            embed=discord.Embed(
+            title=f"Iron Choobs Forum",
+                url=post.forumURL,
+                color=discord.Color.blue())
+            embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
+            embed.add_field(name="User", value=post.username, inline=True)
+            embed.add_field(name="Post Count", value=self.postcount, inline=True)
+            embed.add_field(name="Post", value=f"```{post.forumPost} ```", inline=False)
+        else:
+            embed=discord.Embed(
+            title=f"Iron Choobs Forum",
+                url=post.forumURL,
+                color=discord.Color.green())
+            embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
+            embed.add_field(name="User", value=post.username, inline=True)
+            embed.add_field(name="Post Count", value=self.postcount, inline=True)
+            embed.add_field(name="Post", value=f"```{post.forumPost} ```", inline=False)
+            embed.add_field(name="Loot", value=f"```{loot} ```", inline=False)
+            if self.discordUser is not None:
+                await self.channel.send(f"{self.discordUser.mention} has received loot by posting on the forum!")
         await self.channel.send(embed=embed)
 
     async def checkRoles(self):

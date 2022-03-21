@@ -29,9 +29,10 @@ async def pollForum():
 
                     #Make an instantiation of the DiscordModule class with the current post/user info to handle discord actions
                     dm = disc.UserModule(results.username)
-                    await dm.sendForumPost(results)
+                    rolledLoot = await loot.rollLoot(dm)
+                    await dm.sendForumPost(results, rolledLoot)
                     await dm.checkRoles()
-                    await loot.rollLoot(dm)
+
             
         except Exception as e:
             traceback.print_exc(chain=True)

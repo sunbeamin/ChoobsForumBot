@@ -109,10 +109,6 @@ class UserModule:
         self.lootChannel = lootChannel
         if user != None:
             self.user = user
-            try:
-                self.postcount = db.getPostCount(user)
-            except db.NotFoundError:
-                self.postcount = 0
         else:
             raise Exception(f"Cannot instantiate discord class. No or incorrect user given")
         self.discordUser = self.getDiscordUser()
@@ -125,8 +121,9 @@ class UserModule:
     async def sendForumPost(self, post, loot):
 
         #Increment the postcounter for the user who posted
-        self.postcount = self.postcount + 1
-        db.setPostCount(self.user, self.postcount)
+        postcount = db.getPostCount(self.user)
+        db.setPostCount(self.user, postcount)
+        self.checkRoles(postcount)
 
         #Embed the data into a nice format
         if loot is "Nothing":
@@ -136,7 +133,7 @@ class UserModule:
                 color=discord.Color.blue())
             embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
             embed.add_field(name="User", value=post.username, inline=True)
-            embed.add_field(name="Post Count", value=self.postcount, inline=True)
+            embed.add_field(name="Post Count", value=postcount, inline=True)
             embed.add_field(name="Post", value=f"```{post.forumPost} ```", inline=False)
         else:
             embed=discord.Embed(
@@ -145,23 +142,23 @@ class UserModule:
                 color=discord.Color.green())
             embed.set_thumbnail(url="https://ws.shoutcast.com/images/contacts/0/07a6/07a648bc-68cb-4ad5-aadb-bf118339abdd/radios/c0cd2c27-a667-4275-82b8-2a744b66ca62/c0cd2c27-a667-4275-82b8-2a744b66ca62.png")
             embed.add_field(name="User", value=post.username, inline=True)
-            embed.add_field(name="Post Count", value=self.postcount, inline=True)
+            embed.add_field(name="Post Count", value=postcount, inline=True)
             embed.add_field(name="Post", value=f"```{post.forumPost} ```", inline=False)
             embed.add_field(name="Loot", value=f"```{loot} ```", inline=False)
             if self.discordUser is not None:
                 await self.channel.send(f"{self.discordUser.mention} has received loot by posting on the forum!")
         await self.channel.send(embed=embed)
 
-    async def checkRoles(self):
+    async def checkRoles(self, postcount):
         #Determine if post count is high enough to assign role to user
         newRole = None
-        if (self.postcount >= constants.ForumRoleThreshold.God):
+        if (postcount >= constants.ForumRoleThreshold.God):
             newRole = roleList[constants.ForumRole.God]
-        elif (self.postcount >= constants.ForumRoleThreshold.Senior):
+        elif (postcount >= constants.ForumRoleThreshold.Senior):
             newRole = roleList[constants.ForumRole.Senior]
-        elif (self.postcount >= constants.ForumRoleThreshold.Medior):
+        elif (postcount >= constants.ForumRoleThreshold.Medior):
             newRole = roleList[constants.ForumRole.Medior]
-        elif (self.postcount >= constants.ForumRoleThreshold.Junior):
+        elif (postcount >= constants.ForumRoleThreshold.Junior):
             newRole = roleList[constants.ForumRole.Junior]
 
         #If the roleId is set (i.e. any of the above conditions is valid)
@@ -204,6 +201,9 @@ class UserModule:
 
     async def sendLootMessage(self, message):
         await self.lootChannel.send(message)
+    
+    async def sendAchievement(self, achievement):
+        await self.channel.send(achievement)
     
 async def sendDevMessage(message):
     global client

@@ -44,7 +44,7 @@ def __giftcard(dm):
     else:
         lootMessage = f"----------------------------------------------------------\n**New Forum Loot Ticket: Amazon Giftcard 🎫**\n{dm.guild.get_role(int(ADVISOR_ID)).mention} - A user (Discord name not found) has won a 10$ Amazon giftcard through the forum loot system.\nDiscord user could not be found but users Runescape name is **{dm.user}**\n----------------------------------------------------------"
 
-loot = [(1, __nothing), (1, __bond), (1, __discXP), (1, __giftcard)]
+loot = [(1979, __nothing), (4, __bond), (16, __discXP), (1, __giftcard)]
 
 async def rollLoot(dm):
     global lootMessage

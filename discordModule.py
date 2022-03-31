@@ -67,17 +67,17 @@ async def hiscores(ctx):
         await ctx.send(f"Could not gather a hiscores list")
         await sendDevMessage(e)
 
-@client.command(
-    help="Lists the Discord roles earned by posting on the forum"
-)
-async def forumroles(ctx):
-    global guild
-    msg = f"{guild.get_role(int(roleList[constants.ForumRole.God].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Senior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Medior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Junior].id)).mention}"
-    try:
-        await ctx.send(msg)
-    except Exception as e:
-        await ctx.send(f"Could not gather roles")
-        await sendDevMessage(e)
+# @client.command(
+#     help="Lists the Discord roles earned by posting on the forum"
+# )
+# async def forumroles(ctx):
+#     global guild
+#     msg = f"{guild.get_role(int(roleList[constants.ForumRole.God].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Senior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Medior].id)).mention}\n{guild.get_role(int(roleList[constants.ForumRole.Junior].id)).mention}"
+#     try:
+#         await ctx.send(msg)
+#     except Exception as e:
+#         await ctx.send(f"Could not gather roles")
+#         await sendDevMessage(e)
 
 @client.command(
     help="Lists the loot that can be dropped by posting on the forum"

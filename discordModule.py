@@ -13,14 +13,15 @@ import constants
 
 #Load our enviroment variables 
 load_dotenv()
-CHANNEL_ID      = os.getenv('DISCORD_CHANNEL')
-LOOTCHANNEL_ID  = os.getenv('DISCORD_LOOT_CHANNEL_ID')
-GUILD_ID        = os.getenv('DISCORD_GUILD')
-ROLE_ID_JUNIOR  = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
-ROLE_ID_MEDIOR  = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
-ROLE_ID_SENIOR  = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
-ROLE_ID_GOD     = os.getenv('DISCORD_FORUM_ROLE_GOD')
-DEV_ID          = os.getenv('DISCORD_DEVELOPER_ID')
+FORUM_CHANNEL_ID        = os.getenv('DISCORD_FORUM_CHANNEL')
+LOOT_CHANNEL_ID         = os.getenv('DISCORD_LOOT_CHANNEL_ID')
+ACHIEVEMENT_CHANNEL_ID  = os.getenv('DISCORD_ACHIEVEMENT_CHANNEL_ID')
+GUILD_ID                = os.getenv('DISCORD_GUILD')
+ROLE_ID_JUNIOR          = os.getenv('DISCORD_FORUM_ROLE_JUNIOR')
+ROLE_ID_MEDIOR          = os.getenv('DISCORD_FORUM_ROLE_MEDIOR')
+ROLE_ID_SENIOR          = os.getenv('DISCORD_FORUM_ROLE_SENIOR')
+ROLE_ID_GOD             = os.getenv('DISCORD_FORUM_ROLE_GOD')
+DEV_ID                  = os.getenv('DISCORD_DEVELOPER_ID')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -28,6 +29,7 @@ client = commands.Bot(command_prefix='!', intents=intents)
 guild = None
 channel = None
 lootChannel = None
+achievementChannel = None
 
 #Class used for holding the role discord id and its name 
 class Role(NamedTuple):
@@ -47,11 +49,13 @@ async def on_ready():
     global guild
     global channel
     global lootChannel
+    global achievementChannel
 
     print('We have logged in as {0.user}'.format(client))
     guild = client.get_guild(int(GUILD_ID))
-    channel = client.get_channel(int(CHANNEL_ID))
-    lootChannel = client.get_channel(int(LOOTCHANNEL_ID))
+    channel = client.get_channel(int(FORUM_CHANNEL_ID))
+    lootChannel = client.get_channel(int(LOOT_CHANNEL_ID))
+    achievementChannel = client.get_channel(int(ACHIEVEMENT_CHANNEL_ID))
 
 @client.command(
     help="Gathers a list of the most active forum posters"
@@ -103,10 +107,12 @@ class UserModule:
         global guild
         global channel
         global lootChannel
+        global achievementChannel
         self.client = client
         self.guild = guild
         self.channel = channel
         self.lootChannel = lootChannel
+        self.achievementChannel = achievementChannel
         if user != None:
             self.user = user
         else:
@@ -120,10 +126,16 @@ class UserModule:
 
     async def sendForumPost(self, post, loot):
 
-        #Increment the postcounter for the user who posted
-        postcount = db.getPostCount(self.user)
-        db.setPostCount(self.user, postcount)
-        self.checkRoles(postcount)
+        #Increment the postcounter for the user who posted, if the user is not found, add a new entry with postcount 1
+        try:
+            postcount = db.getPostCount(self.user)
+            postcount = postcount + 1
+            db.setPostCount(self.user, postcount)
+        except db.NotFoundError as e:
+            postcount = 1
+            db.setPostCount(self.user, postcount)
+            
+        await self.checkRoles(postcount)
 
         #Embed the data into a nice format
         if loot is "Nothing":
@@ -211,7 +223,7 @@ class UserModule:
         embed.set_thumbnail(url=icon)
         embed.add_field(name="User", value=achievement.user, inline=True)
         embed.add_field(name="Achievement", value=achievement.name, inline=True)
-        await self.channel.send(embed=embed)
+        await self.achievementChannel.send(embed=embed)
     
 async def sendDevMessage(message):
     global client

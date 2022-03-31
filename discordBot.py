@@ -58,6 +58,8 @@ async def pollAchievements():
                 if(achievement.user != None):
                     print("Choobs Bot is sending an achievement!")
                     #Make an instantiation of the DiscordModule class with the current user info to handle discord actions
+
+                    #######MAYBE MAKE SOME OPTIONAL ARG WHETHER OR NOT TO RETRIEVE DISC USER? 
                     dm = disc.UserModule(achievement.user)
                     await dm.sendAchievement(achievement)
                             

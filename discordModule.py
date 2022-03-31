@@ -203,7 +203,15 @@ class UserModule:
         await self.lootChannel.send(message)
     
     async def sendAchievement(self, achievement):
-        await self.channel.send(achievement)
+        icon = f"https://wiseoldman.net/img/runescape/icons_small/{achievement.metric}.png"
+        embed=discord.Embed(
+        title=f"Iron Choobs Achievements",
+            url="https://wiseoldman.net/groups/2303/achievements",
+            color=discord.Color.gold())
+        embed.set_thumbnail(url=icon)
+        embed.add_field(name="User", value=achievement.user, inline=True)
+        embed.add_field(name="Achievement", value=achievement.name, inline=True)
+        await self.channel.send(embed=embed)
     
 async def sendDevMessage(message):
     global client
